@@ -1,25 +1,39 @@
-const express = require("express");
+const express = require('express');
 
 const app = express();
-const PORT = 3000;
 
-// middleware to read JSON body
-app.use(express.json());
+app.use(express.json()); //middelware
 
-// test route
-app.get("/", (req, res) => {
-  res.send("Expense Server is running");
+let users = []; // in-memory user storage
+
+app.post('/register', (request, response) => {
+    const { name, email, password } = request.body;
+
+    if (!name || !email || !password) {
+        return response.status(400).json({ 
+            message: 'Name, Email, Password are required'  
+        });
+    }
+
+    const newUser = {
+        id: users.length + 1,
+        name: name,
+        email: email,
+        password: password // Note: In production, passwords should be hashed
+    }
+
+
+    users.push(newUser);
+
+    return response.status(200).json({
+        message: 'User registered successfully',
+        user: { 
+            id: newUser.id
+
+         }
+    });
 });
 
-// sample expense route
-app.get("/expenses", (req, res) => {
-  res.json([
-    { id: 1, title: "Food", amount: 200 },
-    { id: 2, title: "Travel", amount: 500 }
-  ]);
-});
-
-// start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+    app.listen(5001, () => {
+        console.log('Server is running on port 5001');
+    });
