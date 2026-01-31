@@ -1,39 +1,46 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
+const authRoutes = require("./src/routes/authRoutes");
+const groupRoutes = require("./src/routes/groupRoutes");
 
 const app = express();
 
-app.use(express.json()); //middelware
+/* ================= MIDDLEWARE ================= */
+app.use(
+    cors({
+        origin: "http://localhost:5173", // Vite frontend
+        credentials: true, // allow cookies
+    })
+);
 
-let users = []; // in-memory user storage
+app.use(express.json());
+app.use(cookieParser());
 
-app.post('/register', (request, response) => {
-    const { name, email, password } = request.body;
+/* ================= ROUTES ================= */
+app.use("/auth", authRoutes);
+app.use("/groups", groupRoutes);
 
-    if (!name || !email || !password) {
-        return response.status(400).json({ 
-            message: 'Name, Email, Password are required'  
-        });
-    }
-
-    const newUser = {
-        id: users.length + 1,
-        name: name,
-        email: email,
-        password: password // Note: In production, passwords should be hashed
-    }
-
-
-    users.push(newUser);
-
-    return response.status(200).json({
-        message: 'User registered successfully',
-        user: { 
-            id: newUser.id
-
-         }
+/* ================= DATABASE ================= */
+mongoose
+    .connect(process.env.MONGO_DB_CONNECTION_URI)
+    .then(() => console.log("✅ MongoDB Connected"))
+    .catch((error) => {
+        console.error("❌ MongoDB connection error:", error);
+        process.exit(1);
     });
+
+/* ================= HEALTH CHECK ================= */
+app.get("/", (req, res) => {
+    res.json({ message: "Expense App API is running" });
 });
 
-    app.listen(5001, () => {
-        console.log('Server is running on port 5001');
-    });
+/* ================= SERVER ================= */
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
