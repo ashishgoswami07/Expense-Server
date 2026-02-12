@@ -13,5 +13,6 @@ router.patch('/members/remove', groupController.removeMembers);
 router.get('/my-groups', groupController.getGroupsByUser);
 router.get('/status', groupController.getGroupsByPaymentStatus);
 router.get('/:groupId/audit', groupController.getAudit);
+router.get('/:groupId', groupController.getGroupById);
 
 module.exports = router;

@@ -16,7 +16,7 @@ const groupDao = {
 
     addMembers: async (groupId, ...membersEmails) => {
         return await Group.findByIdAndUpdate(groupId, {
-            $addToSet: { membersEmail: { $each: membersEmails }}
+            $addToSet: { membersEmail: { $each: membersEmails } }
         }, { new: true });
     },
 
@@ -31,7 +31,8 @@ const groupDao = {
     },
 
     getGroupByStatus: async (status) => {
-        // Querying based on the nested paymentStatus.isPaid boolean
+        // Take email as the input, then filter groups by email
+        // Check in membersEmail field.
         return await Group.find({ "paymentStatus.isPaid": status });
     },
 
@@ -46,6 +47,10 @@ const groupDao = {
         // is the date within paymentStatus.
         const group = await Group.findById(groupId).select('paymentStatus.date');
         return group ? group.paymentStatus.date : null;
+    },
+
+    getGroupById: async (groupId) => {
+        return await Group.findById(groupId);
     }
 };
 
